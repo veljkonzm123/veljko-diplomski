@@ -11,3 +11,4 @@ index 7673991..52cf2d8 100644
    compile('org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.0.2') {
        exclude module: 'support-v4'
    }
+ }
