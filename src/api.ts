@@ -16,6 +16,7 @@ export interface CameraStatus {
   current_video: string | null;
   resolution: string;
   motion_detecting?: boolean;
+  is_247_recording_active?: boolean;
 }
 
 export interface FileInfo {
@@ -225,6 +226,31 @@ export const CameraAPI = {
     }
   },
 
+  start247Recording: async (): Promise<ApiResponse> => {
+    try {
+      const response = await fetchWithTimeout(
+        `${API_BASE_URL}/api/recording/247/start`,
+        { method: "POST" },
+      );
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  },
+
+  stop247Recording: async (): Promise<ApiResponse> => {
+    try {
+      const response = await fetchWithTimeout(
+        `${API_BASE_URL}/api/recording/247/stop`,
+        { method: "POST" },
+      );
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  },
   getStatus: async (): Promise<{
     success: boolean;
     data?: CameraStatus;

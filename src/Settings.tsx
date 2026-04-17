@@ -22,6 +22,7 @@ interface SettingsState {
   motionMinArea: number;
   motionCooldown: number;
   motionAutoRecord: boolean;
+  is247RecordingEnabled: boolean;
 
   // Video Quality
   videoResolution: "720p" | "1080p" | "480p";
@@ -45,6 +46,7 @@ export default function Settings() {
     motionMinArea: 500,
     motionCooldown: 10,
     motionAutoRecord: true,
+    is247RecordingEnabled: false,
 
     videoResolution: "720p",
     videoBitrate: 8000,
@@ -70,6 +72,15 @@ export default function Settings() {
   const loadSettings = async () => {
     setLoading(true);
     try {
+      const statusResult = await CameraAPI.getStatus();
+      const statusData = statusResult.data;
+
+      if (statusResult.success && statusData) {
+        setSettings((prev) => ({
+          ...prev,
+          is247RecordingEnabled: statusData.is_247_recording_active ?? false,
+        }));
+      }
       // ── Motion config (server-side) ──────────────────────────────
       const motionResult = await CameraAPI.getMotionConfig();
 
@@ -192,6 +203,34 @@ export default function Settings() {
     }
   };
 
+  const handle247RecordingToggle = async (value: boolean) => {
+    // Optimistically update the UI
+    setSettings((prev) => ({ ...prev, is247RecordingEnabled: value }));
+
+    try {
+      const result = value
+        ? await CameraAPI.start247Recording()
+        : await CameraAPI.stop247Recording();
+
+      if (!result.success) {
+        // On failure, revert the UI and show an alert
+        setSettings((prev) => ({ ...prev, is247RecordingEnabled: !value }));
+        Alert.alert("❌ Error", result.error || "Operation failed");
+      } else {
+        Alert.alert(
+          "✅ Success",
+          value
+            ? "24/7 recording mode has been activated."
+            : "24/7 recording mode has been deactivated.",
+        );
+      }
+    } catch (error: any) {
+      // Also revert on network errors
+      setSettings((prev) => ({ ...prev, is247RecordingEnabled: !value }));
+      Alert.alert("❌ Error", error.message);
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -203,7 +242,26 @@ export default function Settings() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}
+      {/* ========== CONTINUOUS RECORDING ========== */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>🕒 Continuous Recording</Text>
 
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Enable 24/7 Recording</Text>
+            <Text style={styles.settingDescription}>
+              Automatically records 24h segments. This will override manual and
+              motion recording.
+            </Text>
+          </View>
+          <Switch
+            value={settings.is247RecordingEnabled}
+            onValueChange={handle247RecordingToggle}
+            trackColor={{ false: "#555", true: "#f44336" }} // Use red to indicate it's a major mode
+            thumbColor={settings.is247RecordingEnabled ? "#fff" : "#ccc"}
+          />
+        </View>
+      </View>
       {/* ========== MOTION DETECTION ========== */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}> Motion Detection</Text>
