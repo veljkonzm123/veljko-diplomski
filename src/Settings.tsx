@@ -81,6 +81,17 @@ export default function Settings() {
           is247RecordingEnabled: statusData.is_247_recording_active ?? false,
         }));
       }
+
+      const storageResult = await CameraAPI.getStorageConfig();
+      const storageConfig = storageResult.config;
+      if (storageResult.success && storageConfig) {
+        setSettings((prev) => ({
+          ...prev,
+          autoDeleteEnabled: storageConfig.auto_delete_enabled,
+          autoDeleteDays: storageConfig.max_days,
+          maxStorageGB: storageConfig.max_gb,
+        }));
+      }
       // ── Motion config (server-side) ──────────────────────────────
       const motionResult = await CameraAPI.getMotionConfig();
 
@@ -126,7 +137,13 @@ export default function Settings() {
       const stored = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
       if (stored) {
         const local = JSON.parse(stored);
-        setSettings((prev) => ({ ...prev, ...local }));
+        setSettings((prev) => ({
+          ...prev,
+          // Only apply notification keys from local storage!
+          notifyMotion: local.notifyMotion ?? prev.notifyMotion,
+          notifyRecording: local.notifyRecording ?? prev.notifyRecording,
+          notifyStorage: local.notifyStorage ?? prev.notifyStorage,
+        }));
       }
     } catch (error) {
       console.error("Failed to load settings:", error);
@@ -145,6 +162,20 @@ export default function Settings() {
         ...prev,
         motionEnabled: settings.motionEnabled,
       }));
+
+      const storageResult = await CameraAPI.updateStorageConfig({
+        auto_delete_enabled: settings.autoDeleteEnabled,
+        max_days: settings.autoDeleteDays,
+        max_gb: settings.maxStorageGB,
+      });
+
+      if (!storageResult.success) {
+        Alert.alert(
+          "❌ Error",
+          storageResult.error || "Failed to save storage settings",
+        );
+        return;
+      }
 
       // 2. Save server-side settings to backend
       const motionIsEnabled = settings.motionEnabled;
@@ -505,7 +536,7 @@ export default function Settings() {
             <Slider
               style={styles.slider}
               minimumValue={1}
-              maximumValue={30}
+              maximumValue={60}
               step={1}
               value={settings.autoDeleteDays}
               onValueChange={(value) =>
@@ -522,10 +553,12 @@ export default function Settings() {
         <View style={styles.settingRow}>
           <View style={styles.settingInfo}>
             <Text style={styles.settingLabel}>
-              Max Storage: {settings.maxStorageGB} GB
+              {/* 👇 New, clearer label */}
+              Reserve Free Space: {settings.maxStorageGB} GB
             </Text>
             <Text style={styles.settingDescription}>
-              Delete oldest files when exceeded
+              {/* 👇 New, clearer description */}
+              Always keep at least this much space free on the SD card.
             </Text>
           </View>
         </View>

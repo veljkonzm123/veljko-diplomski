@@ -106,11 +106,27 @@ export interface CameraConfigResponse {
   error?: string;
 }
 
-export interface StorageInfo {
+export interface StorageStatus {
   total_gb: number;
   used_gb: number;
   free_gb: number;
   used_pct: number;
+}
+
+export interface StorageConfig {
+  auto_delete_enabled: boolean;
+  max_days: number;
+  max_gb: number;
+}
+export interface StorageConfigResponse {
+  success: boolean;
+  config?: StorageConfig; // The key is 'config'
+  error?: string;
+}
+export interface StorageStatusResponse {
+  success: boolean;
+  status?: StorageStatus; // The key is 'status', matching your Python backend
+  error?: string;
 }
 
 const fetchWithTimeout = async (
@@ -463,6 +479,56 @@ export const CameraAPI = {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
+      return await response.json();
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  },
+
+  getStorageStatus: async (): Promise<StorageStatusResponse> => {
+    try {
+      const response = await fetchWithTimeout(
+        `${API_BASE_URL}/api/storage/status`,
+        { method: "GET" },
+      );
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error: any) {
+      // 👇 THE FIX IS HERE 👇
+      // On failure, return a complete response object with a default/empty 'status'.
+      return {
+        success: false,
+        status: { total_gb: 0, used_gb: 0, free_gb: 0, used_pct: 0 },
+        error: error.message,
+      };
+    }
+  },
+  getStorageConfig: async (): Promise<StorageConfigResponse> => {
+    try {
+      const response = await fetchWithTimeout(
+        `${API_BASE_URL}/api/storage/config`,
+        { method: "GET" }, // It's good practice to be explicit with GET
+      );
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  },
+
+  updateStorageConfig: async (
+    config: Partial<StorageConfig>,
+  ): Promise<StorageConfigResponse> => {
+    try {
+      const response = await fetchWithTimeout(
+        `${API_BASE_URL}/api/storage/config`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(config),
+        },
+      );
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json();
     } catch (error: any) {
       return { success: false, error: error.message };
