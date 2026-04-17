@@ -10,9 +10,12 @@ import {
   Modal,
   StatusBar,
   Vibration,
+  AppState,
+  AppStateStatus,
+  LogBox,
 } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
-import * as Notifications from "expo-notifications";
+
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import { STREAM_URL, CAMERA_IP } from "./src/config";
@@ -27,11 +30,15 @@ import {
 import Gallery from "./src/Gallery";
 import Settings from "./src/Settings";
 import {
-  registerForPushNotifications,
+  initializeNotifications,
   setupNotificationListeners,
+  clearBadge,
 } from "./src/services/notifications";
 import { mqttService, TOPICS } from "./src/services/mqtt";
-
+LogBox.ignoreLogs([
+  "expo-notifications: Android Push notifications",
+  "`expo-notifications` functionality is not fully supported in Expo Go",
+]);
 export default function App() {
   // ─── Tab navigation ───
   const [activeTab, setActiveTab] = useState<"live" | "gallery" | "settings">(
@@ -132,34 +139,52 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // 1. Register for push notifications on app open
-    registerForPushNotifications();
+    // 1. Initialize local notification system (request permissions, set up channels)
+    initializeNotifications();
 
-    // 2. Set up listeners
+    // 2. Listen for when user TAPS a notification to navigate
     const cleanup = setupNotificationListeners(
-      // When notification arrives while app is OPEN
+      // Notification received while app is OPEN - already handled by MQTT Alert
+      // so we just log it here to avoid double alerts
       (notification) => {
-        console.log("[APP] Notification received:", notification);
-        // You could show an in-app banner here if you want
+        console.log(
+          "[APP] Local notification received while open:",
+          notification.request.content.title,
+        );
       },
-      // When user TAPS a notification
+      // User TAPPED a notification while app was in background
       (response) => {
         const data = response.notification.request.content.data;
-        console.log("[APP] Notification tapped, data:", data);
+        console.log("[APP] Notification tapped:", data);
 
-        // Navigate to the right screen based on the notification type
-        // For example, if it's a motion alert, go to the Gallery tab
         if (data?.type === "motion_detected") {
-          // Navigate to gallery
-          // navigationRef.current?.navigate('Gallery');
+          // Navigate to gallery to see the motion snapshot
+          setActiveTab("gallery");
+        } else if (
+          data?.type === "recording_stopped" ||
+          data?.type === "recording_started"
+        ) {
+          // Navigate to gallery to see the new recording
+          setActiveTab("gallery");
         }
       },
     );
 
-    // 3. Cleanup listeners on unmount
-    return cleanup;
-  }, []);
+    // 3. Clear badge count when app comes to foreground
+    const appStateSubscription = AppState.addEventListener(
+      "change",
+      (state: AppStateStatus) => {
+        if (state === "active") {
+          clearBadge();
+        }
+      },
+    );
 
+    return () => {
+      cleanup();
+      appStateSubscription.remove();
+    };
+  }, []);
   // ========== HTTP Polling (only as fallback when MQTT not connected) ==========
 
   const fetchStatus = async () => {

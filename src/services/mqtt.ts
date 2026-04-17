@@ -1,17 +1,21 @@
-import mqtt from 'mqtt';
-
+import mqtt from "mqtt";
+import {
+  showMotionNotification,
+  showRecordingStartedNotification,
+  showRecordingStoppedNotification,
+} from "./notifications";
 export const TOPICS = {
-  COMMAND: 'camera/command',
-  STATUS: 'camera/status',
-  SNAPSHOT: 'camera/snapshot',
-  RESPONSE: 'camera/response',
-  HEARTBEAT: 'camera/heartbeat',
-  MOTION: 'camera/motion',
-  RECORDING: 'camera/recording',
-  FILES: 'camera/files',
+  COMMAND: "camera/command",
+  STATUS: "camera/status",
+  SNAPSHOT: "camera/snapshot",
+  RESPONSE: "camera/response",
+  HEARTBEAT: "camera/heartbeat",
+  MOTION: "camera/motion",
+  RECORDING: "camera/recording",
+  FILES: "camera/files",
 } as const;
 
-type Topic = typeof TOPICS[keyof typeof TOPICS];
+type Topic = (typeof TOPICS)[keyof typeof TOPICS];
 
 interface MQTTMessage {
   [key: string]: any;
@@ -26,18 +30,18 @@ class MQTTService {
   private connectionListeners: ConnectionCallback[] = [];
   private isConnected = false;
 
-connect(brokerIP: string, port: number = 9001) {
-  console.log(`[MQTT] Connecting to ws://${brokerIP}:${port}...`);
+  connect(brokerIP: string, port: number = 9001) {
+    console.log(`[MQTT] Connecting to ws://${brokerIP}:${port}...`);
 
-  try {
-    this.client = mqtt.connect(`ws://${brokerIP}:${port}`,  {
+    try {
+      this.client = mqtt.connect(`ws://${brokerIP}:${port}`, {
         clientId: `camera_app_${Math.random().toString(16).substr(2, 8)}`,
         keepalive: 60,
         reconnectPeriod: 5000,
       });
 
-      this.client.on('connect', () => {
-        console.log('[MQTT] ✅ Connected');
+      this.client.on("connect", () => {
+        console.log("[MQTT] ✅ Connected");
         this.isConnected = true;
         this.notifyConnectionChange(true);
 
@@ -63,19 +67,19 @@ connect(brokerIP: string, port: number = 9001) {
         });
       });
 
-      this.client.on('close', () => {
-        console.log('[MQTT] ❌ Disconnected');
+      this.client.on("close", () => {
+        console.log("[MQTT] ❌ Disconnected");
         this.isConnected = false;
         this.notifyConnectionChange(false);
       });
 
-      this.client.on('error', (error) => {
-        console.error('[MQTT] Error:', error.message);
+      this.client.on("error", (error) => {
+        console.error("[MQTT] Error:", error.message);
         this.isConnected = false;
         this.notifyConnectionChange(false);
       });
 
-      this.client.on('message', (topic: string, payload: Buffer) => {
+      this.client.on("message", (topic: string, payload: Buffer) => {
         try {
           const message = payload.toString();
           console.log(`[MQTT] 📩 ${topic}:`, message);
@@ -83,18 +87,17 @@ connect(brokerIP: string, port: number = 9001) {
           const parsed = JSON.parse(message);
           this.notifyMessageReceived(topic as Topic, parsed);
         } catch (error) {
-          console.error('[MQTT] Parse error:', error);
+          console.error("[MQTT] Parse error:", error);
         }
       });
-
     } catch (error) {
-      console.error('[MQTT] Connection failed:', error);
+      console.error("[MQTT] Connection failed:", error);
     }
   }
 
   disconnect() {
     if (this.client) {
-      console.log('[MQTT] Disconnecting...');
+      console.log("[MQTT] Disconnecting...");
       this.client.end();
       this.client = null;
       this.isConnected = false;
@@ -104,7 +107,7 @@ connect(brokerIP: string, port: number = 9001) {
 
   publish(topic: string, message: string) {
     if (!this.client || !this.isConnected) {
-      console.warn('[MQTT] Not connected');
+      console.warn("[MQTT] Not connected");
       return;
     }
     this.client.publish(topic, message);
@@ -114,7 +117,7 @@ connect(brokerIP: string, port: number = 9001) {
     this.messageListeners.push(callback);
     return () => {
       this.messageListeners = this.messageListeners.filter(
-        (cb) => cb !== callback
+        (cb) => cb !== callback,
       );
     };
   }
@@ -123,17 +126,44 @@ connect(brokerIP: string, port: number = 9001) {
     this.connectionListeners.push(callback);
     return () => {
       this.connectionListeners = this.connectionListeners.filter(
-        (cb) => cb !== callback
+        (cb) => cb !== callback,
       );
     };
   }
 
   private notifyMessageReceived(topic: Topic, message: MQTTMessage) {
+    // 👇 ADD THIS BLOCK - Trigger local notifications based on topic
+    try {
+      if (topic === TOPICS.MOTION) {
+        // Fire immediately, don't await - we don't want to block message delivery
+        showMotionNotification().catch((e) =>
+          console.warn("[MQTT] Motion notification failed:", e),
+        );
+      }
+
+      if (topic === TOPICS.RECORDING) {
+        if (message.type === "recording_started") {
+          showRecordingStartedNotification().catch((e) =>
+            console.warn("[MQTT] Recording start notification failed:", e),
+          );
+        } else if (message.type === "recording_stopped") {
+          showRecordingStoppedNotification(
+            message.duration ?? 0,
+            message.filename ?? "unknown",
+          ).catch((e) =>
+            console.warn("[MQTT] Recording stop notification failed:", e),
+          );
+        }
+      }
+    } catch (e) {
+      console.warn("[MQTT] Notification error:", e);
+    }
+
     this.messageListeners.forEach((callback) => {
       try {
         callback(topic, message);
       } catch (error) {
-        console.error('[MQTT] Listener error:', error);
+        console.error("[MQTT] Listener error:", error);
       }
     });
   }
@@ -143,7 +173,7 @@ connect(brokerIP: string, port: number = 9001) {
       try {
         callback(connected);
       } catch (error) {
-        console.error('[MQTT] Listener error:', error);
+        console.error("[MQTT] Listener error:", error);
       }
     });
   }
