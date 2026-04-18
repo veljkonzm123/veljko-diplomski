@@ -1,0 +1,6 @@
+{
+    "auto_delete_enabled": true,
+    "max_days": 14,
+    "max_gb": 10,
+    "check_interval_hours": 0.016
+}
