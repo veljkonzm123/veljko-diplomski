@@ -3,6 +3,7 @@ import {
   showMotionNotification,
   showRecordingStartedNotification,
   showRecordingStoppedNotification,
+  showStorageWarningNotification,
 } from "./notifications";
 export const TOPICS = {
   COMMAND: "camera/command",
@@ -13,6 +14,7 @@ export const TOPICS = {
   MOTION: "camera/motion",
   RECORDING: "camera/recording",
   FILES: "camera/files",
+  STORAGE: "camera/storage",
 } as const;
 
 type Topic = (typeof TOPICS)[keyof typeof TOPICS];
@@ -54,6 +56,7 @@ class MQTTService {
           TOPICS.RESPONSE,
           TOPICS.FILES,
           TOPICS.HEARTBEAT,
+          TOPICS.STORAGE,
         ];
 
         topicsToSubscribe.forEach((topic) => {
@@ -132,7 +135,6 @@ class MQTTService {
   }
 
   private notifyMessageReceived(topic: Topic, message: MQTTMessage) {
-    // 👇 ADD THIS BLOCK - Trigger local notifications based on topic
     try {
       if (topic === TOPICS.MOTION) {
         // Fire immediately, don't await - we don't want to block message delivery
@@ -152,6 +154,16 @@ class MQTTService {
             message.filename ?? "unknown",
           ).catch((e) =>
             console.warn("[MQTT] Recording stop notification failed:", e),
+          );
+        }
+      }
+      if (topic === TOPICS.STORAGE) {
+        if (message.type === "storage_warning") {
+          showStorageWarningNotification(
+            message.used_pct ?? 0,
+            message.free_gb ?? 0,
+          ).catch((e) =>
+            console.warn("[MQTT] Storage notification failed:", e),
           );
         }
       }

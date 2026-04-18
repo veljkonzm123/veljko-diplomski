@@ -183,6 +183,36 @@ export const setupNotificationListeners = (
   };
 };
 
+export const showStorageWarningNotification = async (
+  usedPct: number,
+  freeGB: number,
+): Promise<void> => {
+  const prefs = await getNotificationPreferences();
+
+  if (!prefs.notifyStorage) {
+    console.log("[NOTIF] Storage notifications disabled by user.");
+    return;
+  }
+
+  console.log(
+    `[NOTIF] Showing storage notification: ${usedPct}% used, ${freeGB}GB free`,
+  );
+
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "⚠️ Storage Alert",
+      body: `Storage ${usedPct.toFixed(1)}% full. Only ${freeGB.toFixed(1)} GB remaining.`,
+      data: { type: "storage_warning", usedPct, freeGB },
+      sound: "default",
+      color: "#FF9800",
+      priority: Notifications.AndroidNotificationPriority.HIGH,
+    },
+    trigger: null, // null = show immediately
+  });
+
+  console.log("[NOTIF] 📳 Storage warning notification shown");
+};
+
 // ─── Clear badge count ───
 export const clearBadge = async (): Promise<void> => {
   await Notifications.setBadgeCountAsync(0);

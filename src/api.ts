@@ -128,6 +128,12 @@ export interface StorageStatusResponse {
   status?: StorageStatus; // The key is 'status', matching your Python backend
   error?: string;
 }
+export interface StorageMessage {
+  timestamp: string;
+  type: "storage_warning";
+  used_pct: number;
+  free_gb: number;
+}
 
 const fetchWithTimeout = async (
   url: string,

@@ -26,6 +26,7 @@ import {
   StatusMessage,
   MotionMessage,
   RecordingMessage,
+  StorageMessage,
 } from "./src/api";
 import Gallery from "./src/Gallery";
 import Settings from "./src/Settings";
@@ -100,6 +101,18 @@ export default function App() {
           `Confidence: ${msg.confidence.toFixed(1)}%\nSnapshot: ${msg.snapshot}`,
           [{ text: "OK" }],
         );
+      }
+
+      if (topic === TOPICS.STORAGE) {
+        console.log("[STORAGE] MQTT message received:", message);
+        const msg = message as StorageMessage;
+
+        if (msg.type === "storage_warning") {
+          Vibration.vibrate([0, 200, 100, 200]);
+          console.log(
+            `[STORAGE] Warning triggered: ${msg.used_pct}% used, ${msg.free_gb}GB free`,
+          );
+        }
       }
 
       // Recording events
