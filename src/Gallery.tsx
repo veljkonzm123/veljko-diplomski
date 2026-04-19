@@ -518,7 +518,7 @@ export default function Gallery() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color="#14B8A6" />
         <Text style={styles.loadingText}>Loading files...</Text>
       </View>
     );
@@ -536,7 +536,7 @@ export default function Gallery() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>🗂️ Gallery</Text>
+        <Text style={styles.title}>Gallery</Text>
         <Text style={styles.subtitle}>
           {snapshots.length} photos • {videos.length} videos
         </Text>
@@ -554,7 +554,7 @@ export default function Gallery() {
               subTab === "photos" && styles.subTabTextActive,
             ]}
           >
-            📷 Photos ({snapshots.length})
+            Photos ({snapshots.length})
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -567,7 +567,7 @@ export default function Gallery() {
               subTab === "videos" && styles.subTabTextActive,
             ]}
           >
-            🎬 Videos ({videos.length})
+            Videos ({videos.length})
           </Text>
         </TouchableOpacity>
       </View>
@@ -590,8 +590,8 @@ export default function Gallery() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#4CAF50"
-              colors={["#4CAF50"]}
+              tintColor="#14B8A6"
+              colors={["#14B8A6"]}
             />
           }
         />
@@ -615,7 +615,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#4CAF50",
+    color: "#14B8A6",
     marginBottom: 4,
   },
   subtitle: { fontSize: 13, color: "#666" },
@@ -634,7 +634,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 10,
   },
-  subTabActive: { backgroundColor: "#4CAF50" },
+  subTabActive: { backgroundColor: "#14B8A6" },
   subTabText: { color: "#888", fontSize: 14, fontWeight: "600" },
   subTabTextActive: { color: "white" },
 
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
   },
   sectionMonth: {
     fontSize: 12,
-    color: "#4CAF50",
+    color: "#14B8A6",
     fontWeight: "600",
   },
 
@@ -779,7 +779,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalInfoText: { color: "#888", fontSize: 13 },
-  modalInfoPath: { color: "#4CAF50", fontSize: 11, marginTop: 4, opacity: 0.8 },
+  modalInfoPath: { color: "#14B8A6", fontSize: 11, marginTop: 4, opacity: 0.8 },
 
   // Image modal
   modalImageContainer: {

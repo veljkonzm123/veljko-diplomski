@@ -6,16 +6,17 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "extra": {
-      "eas": {
-        "projectId": "9385e872-f6b9-4059-9cbc-1fe4655ee1c4"
-      }
-    },
+
+    // "extra": {
+    //   "eas": {
+    //     "projectId": "9385e872-f6b9-4059-9cbc-1fe4655ee1c4"
+    //   }
+    // },
     "plugins": [
       [
         "expo-notifications",
         {
-          "color": "#4CAF50",
+          "color": "#14B8A6",
           "sounds": []
         }
       ],

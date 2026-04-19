@@ -462,7 +462,7 @@ export default function App() {
                       <Ionicons
                         name="settings-outline"
                         size={22}
-                        color="#4CAF50"
+                        color="#14B8A6"
                       />
                     </TouchableOpacity>
                   </View>
@@ -557,6 +557,7 @@ export default function App() {
 
               {/* Controls - same as before */}
               <View style={styles.controls}>
+                {/* Snapshot Button */}
                 <TouchableOpacity
                   style={[
                     styles.controlButton,
@@ -566,7 +567,7 @@ export default function App() {
                   disabled={snapshotLoading || recordingLoading}
                 >
                   {snapshotLoading ? (
-                    <ActivityIndicator color="white" size="small" />
+                    <ActivityIndicator color="#4CAF50" size="small" />
                   ) : (
                     <>
                       <Text style={styles.buttonIcon}>📷</Text>
@@ -575,6 +576,7 @@ export default function App() {
                   )}
                 </TouchableOpacity>
 
+                {/* Record Button */}
                 <TouchableOpacity
                   style={[
                     styles.controlButton,
@@ -585,39 +587,54 @@ export default function App() {
                   disabled={recordingLoading || snapshotLoading}
                 >
                   {recordingLoading ? (
-                    <ActivityIndicator color="white" size="small" />
+                    <ActivityIndicator color="#f44336" size="small" />
                   ) : (
                     <>
                       <Text style={styles.buttonIcon}>
                         {isRecording ? "⏹" : "🔴"}
                       </Text>
-                      <Text style={styles.buttonText}>
+                      <Text
+                        style={[
+                          styles.buttonText,
+                          isRecording && styles.buttonTextRecording,
+                        ]}
+                      >
                         {isRecording ? "Stop" : "Record"}
                       </Text>
                     </>
                   )}
                 </TouchableOpacity>
+
+                {/* Motion Detection Button */}
                 <TouchableOpacity
                   style={[
                     styles.controlButton,
-                    status?.motion_detecting
-                      ? { backgroundColor: "#FF9800" }
-                      : styles.secondaryButton,
+                    status?.motion_detecting && styles.motionActiveButton,
                     motionLoading && styles.buttonDisabled,
                   ]}
                   onPress={handleToggleMotion}
                   disabled={motionLoading}
                 >
                   {motionLoading ? (
-                    <ActivityIndicator color="white" />
+                    <ActivityIndicator color="#FF9800" size="small" />
                   ) : (
                     <>
                       <Text style={styles.buttonIcon}>🎯</Text>
+                      <Text
+                        style={[
+                          styles.buttonText,
+                          status?.motion_detecting && styles.buttonTextMotion,
+                        ]}
+                      >
+                        Motion
+                      </Text>
                     </>
                   )}
                 </TouchableOpacity>
+
+                {/* Refresh Button */}
                 <TouchableOpacity
-                  style={[styles.controlButton, styles.secondaryButton]}
+                  style={styles.controlButton}
                   onPress={retryConnection}
                 >
                   <Text style={styles.buttonIcon}>🔄</Text>
@@ -628,14 +645,14 @@ export default function App() {
               {/* Status Card - same as before */}
               {status && (
                 <View style={styles.statusCard}>
-                  <Text style={styles.statusTitle}>📊 Camera Status</Text>
+                  <Text style={styles.statusTitle}> Camera Status</Text>
                   <View style={styles.statusGrid}>
                     <View style={styles.statusItem}>
                       <Text style={styles.statusLabel}>Camera</Text>
                       <Text
                         style={[
                           styles.statusValue,
-                          { color: status.initialized ? "#4CAF50" : "#f44336" },
+                          { color: status.initialized ? "#14B8A6" : "#f44336" },
                         ]}
                       >
                         {status.initialized ? "✅ Online" : "❌ Offline"}
@@ -660,7 +677,7 @@ export default function App() {
                       <Text
                         style={[
                           styles.statusValue,
-                          { color: status.streaming ? "#4CAF50" : "#888" },
+                          { color: status.streaming ? "#14B8A6" : "#888" },
                         ]}
                       >
                         {status.streaming ? "✅ Active" : "⚪ Inactive"}
@@ -818,7 +835,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#4CAF50",
+    color: "#14B8A6", // ← 🌊 Changed from #4CAF50
     marginBottom: 8,
   },
   statusRow: {
@@ -829,7 +846,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#ffffff",
   },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
 
   // Stream
   streamWrapper: {
@@ -840,9 +856,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     position: "relative",
     borderWidth: 2,
-    borderColor: "#4CAF50",
+    borderColor: "#14B8A6", // ← 🌊 Changed from #4CAF50
   },
-  streamWrapperRecording: { borderColor: "#f44336" },
+  streamWrapperRecording: { borderColor: "#FF453A" }, // Keep red for recording
   webview: { flex: 1, backgroundColor: "#000" },
 
   overlayCenter: {
@@ -859,7 +875,7 @@ const styles = StyleSheet.create({
   overlayText: { color: "#888", marginTop: 16, fontSize: 14 },
   errorIcon: { fontSize: 64, marginBottom: 16 },
   errorTitle: {
-    color: "#f44336",
+    color: "#FF453A",
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 8,
@@ -872,7 +888,7 @@ const styles = StyleSheet.create({
   },
   retryButton: {
     marginTop: 24,
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#14B8A6", // ← 🌊 Changed from #4CAF50
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderRadius: 24,
@@ -895,7 +911,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#32D74B", // ← Keep green for "LIVE" (universal meaning)
     marginRight: 8,
   },
   liveText: { color: "white", fontSize: 12, fontWeight: "bold" },
@@ -921,30 +937,70 @@ const styles = StyleSheet.create({
   },
   recordingText: { color: "white", fontSize: 12, fontWeight: "bold" },
 
-  // Controls
-  controls: { flexDirection: "row", gap: 10, marginTop: 20 },
-  controlButton: {
-    flex: 1,
-    backgroundColor: "#4CAF50",
-    paddingVertical: 16,
-    borderRadius: 12,
+  // Controls (Icon Bar Minimal)
+  controls: {
     flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    marginTop: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderRadius: 16,
+  },
+
+  controlButton: {
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    minWidth: 70,
   },
-  secondaryButton: {
-    flex: 0.7,
-    backgroundColor: "rgba(76,175,80,0.3)",
-    borderWidth: 1,
-    borderColor: "#4CAF50",
-  },
-  recordingButton: { backgroundColor: "#f44336" },
-  buttonDisabled: { backgroundColor: "#444" },
-  buttonIcon: { fontSize: 20 },
-  buttonText: { color: "white", fontSize: 16, fontWeight: "600" },
 
-  // Status
+  controlButtonActive: {
+    backgroundColor: "rgba(20,184,166,0.15)", // ← 🌊 Teal with opacity
+    borderRadius: 12,
+  },
+
+  recordingButton: {
+    backgroundColor: "rgba(244,67,54,0.15)", // Keep red for recording
+    borderRadius: 12,
+  },
+
+  motionActiveButton: {
+    backgroundColor: "rgba(255,152,0,0.15)", // Keep orange for motion
+    borderRadius: 12,
+  },
+
+  buttonDisabled: {
+    opacity: 0.4,
+  },
+
+  buttonIcon: {
+    fontSize: 28,
+    marginBottom: 6,
+  },
+
+  buttonText: {
+    color: "#AAB4C3",
+    fontSize: 11,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+
+  buttonTextActive: {
+    color: "#14B8A6", // ← 🌊 Changed from #4CAF50
+  },
+
+  buttonTextRecording: {
+    color: "#f44336", // Keep red
+  },
+
+  buttonTextMotion: {
+    color: "#FF9800", // Keep orange
+  },
+
+  // Status Card
   statusCard: {
     marginTop: 20,
     backgroundColor: "rgba(255,255,255,0.05)",
@@ -954,7 +1010,7 @@ const styles = StyleSheet.create({
   statusTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#4CAF50",
+    color: "#14B8A6", // ← 🌊 Changed from #4CAF50
     marginBottom: 12,
   },
   statusGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
@@ -975,7 +1031,7 @@ const styles = StyleSheet.create({
   },
   recordingInfoText: { color: "#f44336", fontSize: 12, fontWeight: "500" },
 
-  // ─── Bottom Tab Bar ───
+  // Bottom Tab Bar
   tabBar: {
     flexDirection: "row",
     backgroundColor: "rgba(0,0,0,0.6)",
@@ -990,7 +1046,7 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     borderTopWidth: 2,
-    borderTopColor: "#4CAF50",
+    borderTopColor: "#14B8A6", // ← 🌊 Changed from #4CAF50
   },
   tabIcon: {
     fontSize: 22,
@@ -1006,37 +1062,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   tabLabelActive: {
-    color: "#4CAF50",
+    color: "#14B8A6", // ← 🌊 Changed from #4CAF50
   },
-  mqttStatus: {
-    fontSize: 11,
-    color: "#888",
-    marginLeft: 8,
-  },
-  topBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: "#16213e",
-  },
-  appTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  settingsButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#1F2A3D",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  settingsIcon: {
-    fontSize: 24,
-  },
+
+  // Header
   headerTextContainer: {
     flex: 1,
   },
@@ -1046,17 +1075,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 12,
   },
-
   headerSubtitle: {
     fontSize: 13,
     color: "#AAB4C3",
     marginTop: 4,
   },
-
-  settingsButtonText: {
-    fontSize: 20,
+  settingsButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#1F2A3D",
+    justifyContent: "center",
+    alignItems: "center",
   },
-
   statusPill: {
     flexDirection: "row",
     alignItems: "center",
@@ -1066,17 +1097,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
 
-  statusPillText: {
-    color: "white",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-
+  // Settings Modal
   settingsModalContainer: {
     flex: 1,
     backgroundColor: "#101624",
   },
-
   settingsModalHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -1087,13 +1112,11 @@ const styles = StyleSheet.create({
     borderBottomColor: "#263248",
     backgroundColor: "#101624",
   },
-
   settingsModalTitle: {
     color: "white",
     fontSize: 22,
     fontWeight: "700",
   },
-
   settingsCloseButton: {
     width: 40,
     height: 40,
@@ -1102,12 +1125,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
   settingsCloseButtonText: {
     color: "white",
     fontSize: 18,
     fontWeight: "700",
   },
+
+  // Fullscreen
   fullscreenButton: {
     position: "absolute",
     bottom: 12,
@@ -1125,8 +1149,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#fff",
   },
-
-  // NEW: Fullscreen modal styles
   fullscreenContainer: {
     flex: 1,
     backgroundColor: "#000",
@@ -1139,8 +1161,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
   },
-
-  // NEW: Exit fullscreen button (top-right in landscape)
   exitFullscreenButton: {
     position: "absolute",
     top: 20,
@@ -1159,30 +1179,5 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: "#fff",
     fontWeight: "bold",
-  },
-
-  // NEW: Fullscreen controls (bottom bar)
-  fullscreenControls: {
-    position: "absolute",
-    bottom: 30,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 20,
-    paddingHorizontal: 40,
-  },
-  fullscreenControlButton: {
-    width: 60,
-    height: 60,
-    backgroundColor: "rgba(76, 175, 80, 0.9)",
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.5)",
-  },
-  fullscreenControlIcon: {
-    fontSize: 28,
   },
 });

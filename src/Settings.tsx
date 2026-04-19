@@ -265,7 +265,7 @@ export default function Settings() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color="#14B8A6" />
         <Text style={styles.loadingText}>Loading settings...</Text>
       </View>
     );
@@ -310,7 +310,7 @@ export default function Settings() {
             onValueChange={(value) =>
               setSettings({ ...settings, motionEnabled: value })
             }
-            trackColor={{ false: "#555", true: "#4CAF50" }}
+            trackColor={{ false: "#555", true: "#14B8A6" }}
             thumbColor={settings.motionEnabled ? "#fff" : "#ccc"}
           />
         </View>
@@ -335,9 +335,9 @@ export default function Settings() {
           onValueChange={(value) =>
             setSettings({ ...settings, motionSensitivity: value })
           }
-          minimumTrackTintColor="#4CAF50"
+          minimumTrackTintColor="#14B8A6"
           maximumTrackTintColor="#555"
-          thumbTintColor="#4CAF50"
+          thumbTintColor="#14B8A6"
         />
 
         {/* Minimum Area */}
@@ -360,9 +360,9 @@ export default function Settings() {
           onValueChange={(value) =>
             setSettings({ ...settings, motionMinArea: value })
           }
-          minimumTrackTintColor="#4CAF50"
+          minimumTrackTintColor="#14B8A6"
           maximumTrackTintColor="#555"
-          thumbTintColor="#4CAF50"
+          thumbTintColor="#14B8A6"
         />
 
         {/* Cooldown */}
@@ -385,9 +385,9 @@ export default function Settings() {
           onValueChange={(value) =>
             setSettings({ ...settings, motionCooldown: value })
           }
-          minimumTrackTintColor="#4CAF50"
+          minimumTrackTintColor="#14B8A6"
           maximumTrackTintColor="#555"
-          thumbTintColor="#4CAF50"
+          thumbTintColor="#14B8A6"
         />
 
         {/* Auto-Record */}
@@ -403,7 +403,7 @@ export default function Settings() {
             onValueChange={(value) =>
               setSettings({ ...settings, motionAutoRecord: value })
             }
-            trackColor={{ false: "#555", true: "#4CAF50" }}
+            trackColor={{ false: "#555", true: "#14B8A6" }}
             thumbColor={settings.motionAutoRecord ? "#fff" : "#ccc"}
           />
         </View>
@@ -467,9 +467,9 @@ export default function Settings() {
           onValueChange={(value) =>
             setSettings({ ...settings, videoBitrate: value })
           }
-          minimumTrackTintColor="#4CAF50"
+          minimumTrackTintColor="#14B8A6"
           maximumTrackTintColor="#555"
-          thumbTintColor="#4CAF50"
+          thumbTintColor="#14B8A6"
         />
 
         {/* FPS */}
@@ -492,9 +492,9 @@ export default function Settings() {
           onValueChange={(value) =>
             setSettings({ ...settings, videoFPS: value })
           }
-          minimumTrackTintColor="#4CAF50"
+          minimumTrackTintColor="#14B8A6"
           maximumTrackTintColor="#555"
-          thumbTintColor="#4CAF50"
+          thumbTintColor="#14B8A6"
         />
       </View>
 
@@ -515,7 +515,7 @@ export default function Settings() {
             onValueChange={(value) =>
               setSettings({ ...settings, autoDeleteEnabled: value })
             }
-            trackColor={{ false: "#555", true: "#4CAF50" }}
+            trackColor={{ false: "#555", true: "#14B8A6" }}
             thumbColor={settings.autoDeleteEnabled ? "#fff" : "#ccc"}
           />
         </View>
@@ -542,9 +542,9 @@ export default function Settings() {
               onValueChange={(value) =>
                 setSettings({ ...settings, autoDeleteDays: value })
               }
-              minimumTrackTintColor="#4CAF50"
+              minimumTrackTintColor="#14B8A6"
               maximumTrackTintColor="#555"
-              thumbTintColor="#4CAF50"
+              thumbTintColor="#14B8A6"
             />
           </>
         )}
@@ -571,9 +571,9 @@ export default function Settings() {
           onValueChange={(value) =>
             setSettings({ ...settings, maxStorageGB: value })
           }
-          minimumTrackTintColor="#4CAF50"
+          minimumTrackTintColor="#14B8A6"
           maximumTrackTintColor="#555"
-          thumbTintColor="#4CAF50"
+          thumbTintColor="#14B8A6"
         />
       </View>
 
@@ -594,7 +594,7 @@ export default function Settings() {
             onValueChange={(value) =>
               setSettings({ ...settings, notifyMotion: value })
             }
-            trackColor={{ false: "#555", true: "#4CAF50" }}
+            trackColor={{ false: "#555", true: "#14B8A6" }}
             thumbColor={settings.notifyMotion ? "#fff" : "#ccc"}
           />
         </View>
@@ -612,7 +612,7 @@ export default function Settings() {
             onValueChange={(value) =>
               setSettings({ ...settings, notifyStorage: value })
             }
-            trackColor={{ false: "#555", true: "#4CAF50" }}
+            trackColor={{ false: "#555", true: "#14B8A6" }}
             thumbColor={settings.notifyStorage ? "#fff" : "#ccc"}
           />
         </View>
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#4CAF50",
+    color: "#14B8A6",
     marginBottom: 16,
   },
   settingRow: {
@@ -716,8 +716,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   optionButtonActive: {
-    backgroundColor: "#4CAF50",
-    borderColor: "#4CAF50",
+    backgroundColor: "#14B8A6",
+    borderColor: "#14B8A6",
   },
   optionButtonText: {
     color: "#888",
@@ -728,7 +728,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   saveButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#14B8A6",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
