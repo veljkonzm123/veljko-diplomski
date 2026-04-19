@@ -117,6 +117,8 @@ export interface StorageConfig {
   auto_delete_enabled: boolean;
   max_days: number;
   max_gb: number;
+  check_interval_hours: number;
+  warning_threshold_pct: number;
 }
 export interface StorageConfigResponse {
   success: boolean;

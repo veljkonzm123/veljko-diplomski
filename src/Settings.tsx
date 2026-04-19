@@ -33,6 +33,8 @@ interface SettingsState {
   autoDeleteEnabled: boolean;
   autoDeleteDays: number;
   maxStorageGB: number;
+  checkIntervalHours: number;
+  warningThresholdPct: number;
 
   // Notifications
   notifyMotion: boolean;
@@ -55,6 +57,8 @@ export default function Settings() {
     autoDeleteEnabled: false,
     autoDeleteDays: 7,
     maxStorageGB: 10,
+    checkIntervalHours: 1.0,
+    warningThresholdPct: 85.0,
 
     notifyMotion: true,
     notifyRecording: false,
@@ -90,6 +94,8 @@ export default function Settings() {
           autoDeleteEnabled: storageConfig.auto_delete_enabled,
           autoDeleteDays: storageConfig.max_days,
           maxStorageGB: storageConfig.max_gb,
+          checkIntervalHours: storageConfig.check_interval_hours || 1.0,
+          warningThresholdPct: storageConfig.warning_threshold_pct || 85.0,
         }));
       }
       // ── Motion config (server-side) ──────────────────────────────
@@ -167,6 +173,8 @@ export default function Settings() {
         auto_delete_enabled: settings.autoDeleteEnabled,
         max_days: settings.autoDeleteDays,
         max_gb: settings.maxStorageGB,
+        check_interval_hours: settings.checkIntervalHours,
+        warning_threshold_pct: settings.warningThresholdPct,
       });
 
       if (!storageResult.success) {
@@ -570,6 +578,58 @@ export default function Settings() {
           value={settings.maxStorageGB}
           onValueChange={(value) =>
             setSettings({ ...settings, maxStorageGB: value })
+          }
+          minimumTrackTintColor="#14B8A6"
+          maximumTrackTintColor="#555"
+          thumbTintColor="#14B8A6"
+        />
+
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>
+              Check Interval:{" "}
+              {settings.checkIntervalHours < 1
+                ? `${Math.round(settings.checkIntervalHours * 60)} min`
+                : `${settings.checkIntervalHours.toFixed(1)} hours`}
+            </Text>
+            <Text style={styles.settingDescription}>
+              How often to check storage and cleanup old files
+            </Text>
+          </View>
+        </View>
+        <Slider
+          style={styles.slider}
+          minimumValue={0.033} // 2 minutes (2/60 = 0.033)
+          maximumValue={24} // 24 hours
+          step={0.05} // 3 minute steps (cleaner than 0.017)
+          value={settings.checkIntervalHours}
+          onValueChange={(value) =>
+            setSettings({ ...settings, checkIntervalHours: value })
+          }
+          minimumTrackTintColor="#14B8A6"
+          maximumTrackTintColor="#555"
+          thumbTintColor="#14B8A6"
+        />
+
+        {/* Warning Threshold */}
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>
+              Warning Threshold: {settings.warningThresholdPct.toFixed(0)}%
+            </Text>
+            <Text style={styles.settingDescription}>
+              Send alert when storage usage reaches this percentage
+            </Text>
+          </View>
+        </View>
+        <Slider
+          style={styles.slider}
+          minimumValue={10}
+          maximumValue={95}
+          step={5}
+          value={settings.warningThresholdPct}
+          onValueChange={(value) =>
+            setSettings({ ...settings, warningThresholdPct: value })
           }
           minimumTrackTintColor="#14B8A6"
           maximumTrackTintColor="#555"
