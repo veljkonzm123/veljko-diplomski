@@ -29,7 +29,7 @@ import {
   StorageMessage,
 } from "./src/api";
 import Gallery from "./src/screens/Gallery";
-import Settings from "./src/Settings";
+import Settings from "./src/screens/Settings";
 import {
   initializeNotifications,
   setupNotificationListeners,
