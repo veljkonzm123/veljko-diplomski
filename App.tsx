@@ -28,7 +28,7 @@ import {
   RecordingMessage,
   StorageMessage,
 } from "./src/api";
-import Gallery from "./src/Gallery";
+import Gallery from "./src/screens/Gallery";
 import Settings from "./src/Settings";
 import {
   initializeNotifications,
@@ -578,14 +578,19 @@ export default function App() {
                 </TouchableOpacity>
 
                 {/* Record Button */}
-                  <TouchableOpacity
+                <TouchableOpacity
                   style={[
                     styles.controlButton,
                     isRecording && styles.recordingButton,
-                    (recordingLoading || status?.is_247_recording_active) && styles.buttonDisabled,  // ← ADD is_247_recording_active
+                    (recordingLoading || status?.is_247_recording_active) &&
+                      styles.buttonDisabled, // ← ADD is_247_recording_active
                   ]}
                   onPress={handleToggleRecording}
-                  disabled={recordingLoading || snapshotLoading || status?.is_247_recording_active}  // ← ADD is_247_recording_active
+                  disabled={
+                    recordingLoading ||
+                    snapshotLoading ||
+                    status?.is_247_recording_active
+                  } // ← ADD is_247_recording_active
                 >
                   {recordingLoading ? (
                     <ActivityIndicator color="#f44336" size="small" />
@@ -611,7 +616,8 @@ export default function App() {
                   style={[
                     styles.controlButton,
                     status?.motion_detecting && styles.motionActiveButton,
-                     (motionLoading || status?.is_247_recording_active) && styles.buttonDisabled,
+                    (motionLoading || status?.is_247_recording_active) &&
+                      styles.buttonDisabled,
                   ]}
                   onPress={handleToggleMotion}
                   disabled={motionLoading || status?.is_247_recording_active}
@@ -643,16 +649,16 @@ export default function App() {
                 </TouchableOpacity>
               </View>
 
-
-                    {status?.is_247_recording_active && (
-                  <View style={styles.infoBox}>
-                    <Text style={styles.infoIcon}>ℹ️</Text>
-                    <Text style={styles.infoText}>
-                      Manual recording and motion detection are disabled during 24/7 recording mode. 
-      Go to Settings to stop continuous recording.
-                    </Text>
-                  </View>
-                )}
+              {status?.is_247_recording_active && (
+                <View style={styles.infoBox}>
+                  <Text style={styles.infoIcon}>ℹ️</Text>
+                  <Text style={styles.infoText}>
+                    Manual recording and motion detection are disabled during
+                    24/7 recording mode. Go to Settings to stop continuous
+                    recording.
+                  </Text>
+                </View>
+              )}
 
               {/* Status Card - same as before */}
               {status && (
