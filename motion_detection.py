@@ -62,6 +62,9 @@ class MotionDetector:
         """Start motion detection"""
         if self.state['detecting']:
             return False, "Already detecting"
+            
+        if self.camera_system.is_247_recording_active:
+            return False, "Cannot start motion detection while 24/7 recording is active"    
         
         self.config['enabled'] = True
         self.state['detecting'] = True

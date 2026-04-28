@@ -158,6 +158,7 @@ class StorageManager:
         'max_days': 14,
         'max_gb': 10,
         'check_interval_hours': 6.0, # How often to run the cleanup job 6
+        'warning_threshold_pct': 85.0,
     }
 
     def __init__(self, folder_to_manage,camera_system):
@@ -260,8 +261,8 @@ class StorageManager:
                     used_percentage = usage.get('used_pct', 0)
                     free_gb = usage.get('free_gb', 0)
                     
-                    WARNING_THRESHOLD_PCT = 85.0  # Threshold za upozorenje
-
+                    #WARNING_THRESHOLD_PCT = 85.0  # Threshold za upozorenje
+                    WARNING_THRESHOLD_PCT = self.config.get('warning_threshold_pct', 85.0)
                     # 🔴 UVEK ŠALJI NOTIFIKACIJU ako je usage >= threshold
                     if used_percentage >= WARNING_THRESHOLD_PCT:
                         print(f"[STORAGE] ⚠️ Low storage warning! Usage: {used_percentage}%")
@@ -756,6 +757,9 @@ class CameraSystem:
     def stop_recording(self):
         """Stop recording"""
         with self._lock:
+            if self.is_247_recording_active:
+                return False, "Cannot manually stop recording during 24/7 mode. Disable 24/7 recording from Settings."
+            
             return self._stop_recording_internal()
     
     def _stop_recording_internal(self):
@@ -1192,10 +1196,10 @@ class WebHandler(BaseHTTPRequestHandler):
             self._serve_motion_config()
         elif self.path == '/api/camera/config':   
             self._serve_camera_config()    
-        elif self.path == '/api/storage/status':  # 👈 ADD THIS
-            self._serve_storage_status()          # 👈 ADD THIS
-        elif self.path == '/api/storage/config':  # 👈 ADD THIS
-            self._serve_storage_config()          # 👈 ADD THIS    
+        elif self.path == '/api/storage/status':  
+            self._serve_storage_status()          
+        elif self.path == '/api/storage/config': 
+            self._serve_storage_config()              
         else:
             self._serve_404()
     
