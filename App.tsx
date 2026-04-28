@@ -85,6 +85,7 @@ export default function App() {
           current_video: msg.current_video,
           resolution: msg.resolution,
           motion_detecting: msg.motion_detecting,
+          is_247_recording_active: msg.is_247_recording_active,
         });
       }
 
@@ -450,7 +451,7 @@ export default function App() {
                   <View style={styles.headerTopRow}>
                     {/* Leva strana (naslov + subtitle) */}
                     <View style={styles.headerTextContainer}>
-                      <Text style={styles.title}>Camera System</Text>
+                      <Text style={styles.title}>Veljko Camera</Text>
                     </View>
 
                     {/* Desno - SETTINGS */}
@@ -577,14 +578,14 @@ export default function App() {
                 </TouchableOpacity>
 
                 {/* Record Button */}
-                <TouchableOpacity
+                  <TouchableOpacity
                   style={[
                     styles.controlButton,
                     isRecording && styles.recordingButton,
-                    recordingLoading && styles.buttonDisabled,
+                    (recordingLoading || status?.is_247_recording_active) && styles.buttonDisabled,  // ← ADD is_247_recording_active
                   ]}
                   onPress={handleToggleRecording}
-                  disabled={recordingLoading || snapshotLoading}
+                  disabled={recordingLoading || snapshotLoading || status?.is_247_recording_active}  // ← ADD is_247_recording_active
                 >
                   {recordingLoading ? (
                     <ActivityIndicator color="#f44336" size="small" />
@@ -610,10 +611,10 @@ export default function App() {
                   style={[
                     styles.controlButton,
                     status?.motion_detecting && styles.motionActiveButton,
-                    motionLoading && styles.buttonDisabled,
+                     (motionLoading || status?.is_247_recording_active) && styles.buttonDisabled,
                   ]}
                   onPress={handleToggleMotion}
-                  disabled={motionLoading}
+                  disabled={motionLoading || status?.is_247_recording_active}
                 >
                   {motionLoading ? (
                     <ActivityIndicator color="#FF9800" size="small" />
@@ -641,6 +642,17 @@ export default function App() {
                   <Text style={styles.buttonText}>Refresh</Text>
                 </TouchableOpacity>
               </View>
+
+
+                    {status?.is_247_recording_active && (
+                  <View style={styles.infoBox}>
+                    <Text style={styles.infoIcon}>ℹ️</Text>
+                    <Text style={styles.infoText}>
+                      Manual recording and motion detection are disabled during 24/7 recording mode. 
+      Go to Settings to stop continuous recording.
+                    </Text>
+                  </View>
+                )}
 
               {/* Status Card - same as before */}
               {status && (
@@ -1179,5 +1191,26 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: "#fff",
     fontWeight: "bold",
+  },
+  infoBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: "rgba(255, 152, 0, 0.1)", // Orange tint
+    borderLeftWidth: 3,
+    borderLeftColor: "#FF9800",
+    borderRadius: 8,
+  },
+  infoIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 13,
+    color: "#FF9800",
+    lineHeight: 18,
   },
 });

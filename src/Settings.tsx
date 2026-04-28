@@ -176,6 +176,7 @@ export default function Settings() {
         check_interval_hours: settings.checkIntervalHours,
         warning_threshold_pct: settings.warningThresholdPct,
       });
+      console.log('Storage result:', storageResult)
 
       if (!storageResult.success) {
         Alert.alert(
@@ -304,6 +305,8 @@ export default function Settings() {
       {/* ========== MOTION DETECTION ========== */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}> Motion Detection</Text>
+
+        
 
         {/* Enable/Disable */}
         <View style={styles.settingRow}>

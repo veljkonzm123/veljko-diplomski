@@ -44,6 +44,7 @@ export interface StatusMessage {
   current_video: string | null;
   resolution: string;
   motion_detecting?: boolean;
+  is_247_recording_active?: boolean; 
 }
 
 export interface MotionConfig {
@@ -527,6 +528,7 @@ export const CameraAPI = {
   updateStorageConfig: async (
     config: Partial<StorageConfig>,
   ): Promise<StorageConfigResponse> => {
+     console.log('Sending to server:', config)
     try {
       const response = await fetchWithTimeout(
         `${API_BASE_URL}/api/storage/config`,
