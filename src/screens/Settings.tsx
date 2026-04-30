@@ -16,7 +16,11 @@ import {
   ContinuousRecordingSection,
 } from "../components/settings";
 
-export default function Settings() {
+interface Props {
+  onClose?: () => void; // Optional, for when opened in modal
+}
+
+export default function Settings({ onClose }: Props) {
   const {
     settings,
     loading,
@@ -36,37 +40,58 @@ export default function Settings() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <ContinuousRecordingSection
-        settings={settings}
-        onToggle={handle247RecordingToggle}
-      />
+    <>
+      {/* 👇 Add header with close button if onClose is provided */}
+      {onClose && (
+        <View style={styles.modalHeader}>
+          <Text style={styles.modalTitle}>Settings</Text>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>✕</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
-      <MotionDetectionSection
-        settings={settings}
-        updateSetting={updateSetting}
-      />
-
-      <VideoQualitySection settings={settings} updateSetting={updateSetting} />
-
-      <StorageSection settings={settings} updateSetting={updateSetting} />
-
-      <NotificationsSection settings={settings} updateSetting={updateSetting} />
-
-      <TouchableOpacity
-        style={[styles.saveButton, saving && styles.saveButtonDisabled]}
-        onPress={saveSettings}
-        disabled={saving}
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
       >
-        {saving ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.saveButtonText}>💾 Save Settings</Text>
-        )}
-      </TouchableOpacity>
+        <ContinuousRecordingSection
+          settings={settings}
+          onToggle={handle247RecordingToggle}
+        />
 
-      <View style={{ height: 40 }} />
-    </ScrollView>
+        <MotionDetectionSection
+          settings={settings}
+          updateSetting={updateSetting}
+        />
+
+        <VideoQualitySection
+          settings={settings}
+          updateSetting={updateSetting}
+        />
+
+        <StorageSection settings={settings} updateSetting={updateSetting} />
+
+        <NotificationsSection
+          settings={settings}
+          updateSetting={updateSetting}
+        />
+
+        <TouchableOpacity
+          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+          onPress={saveSettings}
+          disabled={saving}
+        >
+          {saving ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.saveButtonText}>💾 Save Settings</Text>
+          )}
+        </TouchableOpacity>
+
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </>
   );
 }
 
@@ -103,5 +128,34 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  // 👇 New styles for modal header
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "#263248",
+    backgroundColor: "#1a1a2e",
+  },
+  modalTitle: {
+    color: "white",
+    fontSize: 22,
+    fontWeight: "700",
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#1F2A3D",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "700",
   },
 });

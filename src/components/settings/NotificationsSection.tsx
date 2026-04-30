@@ -21,14 +21,6 @@ export function NotificationsSection({ settings, updateSetting }: Props) {
         onValueChange={(value) => updateSetting("notifyMotion", value)}
       />
 
-      {/* Recording Alerts */}
-      <SettingRow
-        label="Recording Alerts"
-        description="Notify when recording starts/stops"
-        value={settings.notifyRecording}
-        onValueChange={(value) => updateSetting("notifyRecording", value)}
-      />
-
       {/* Storage Alerts */}
       <SettingRow
         label="Storage Alerts"

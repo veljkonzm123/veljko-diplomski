@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CameraAPI, MotionConfig } from "../api";
@@ -122,6 +122,49 @@ export function useSettings() {
   const saveSettings = async () => {
     setSaving(true);
     try {
+      // 👇 Handle motion detection state FIRST
+      const currentMotionStatus = await CameraAPI.getMotionConfig();
+      const isCurrentlyDetecting =
+        currentMotionStatus.state?.detecting ?? false;
+
+      // Start or stop motion detection based on toggle
+      if (settings.motionEnabled && !isCurrentlyDetecting) {
+        console.log("[SETTINGS] Starting motion detection...");
+        const startResult = await CameraAPI.startMotionDetection();
+        if (!startResult.success) {
+          Alert.alert(
+            "❌ Error",
+            startResult.error || "Failed to start motion detection",
+          );
+          // Revert the toggle
+          setSettings((prev) => ({ ...prev, motionEnabled: false }));
+          setSaving(false);
+          return;
+        }
+      } else if (!settings.motionEnabled && isCurrentlyDetecting) {
+        console.log("[SETTINGS] Stopping motion detection...");
+        const stopResult = await CameraAPI.stopMotionDetection();
+        if (!stopResult.success) {
+          Alert.alert(
+            "❌ Error",
+            stopResult.error || "Failed to stop motion detection",
+          );
+          // Revert the toggle
+          setSettings((prev) => ({ ...prev, motionEnabled: true }));
+          setSaving(false);
+          return;
+        }
+      }
+
+      // Save motion config (sensitivity, min_area, etc.)
+      const motionConfig: Partial<MotionConfig> = {
+        sensitivity: settings.motionSensitivity,
+        min_area: settings.motionMinArea,
+        cooldown: settings.motionCooldown,
+        auto_record: settings.motionAutoRecord,
+      };
+      await CameraAPI.updateMotionConfig(motionConfig);
+
       // Save storage config
       const storageResult = await CameraAPI.updateStorageConfig({
         auto_delete_enabled: settings.autoDeleteEnabled,
@@ -138,26 +181,6 @@ export function useSettings() {
         );
         return;
       }
-
-      // Save motion detection state
-      const currentMotionStatus = await CameraAPI.getMotionConfig();
-      if (settings.motionEnabled && !currentMotionStatus.state?.detecting) {
-        await CameraAPI.startMotionDetection();
-      } else if (
-        !settings.motionEnabled &&
-        currentMotionStatus.state?.detecting
-      ) {
-        await CameraAPI.stopMotionDetection();
-      }
-
-      // Save motion config
-      const motionConfig: Partial<MotionConfig> = {
-        sensitivity: settings.motionSensitivity,
-        min_area: settings.motionMinArea,
-        cooldown: settings.motionCooldown,
-        auto_record: settings.motionAutoRecord,
-      };
-      await CameraAPI.updateMotionConfig(motionConfig);
 
       // Save camera config
       const cameraResult = await CameraAPI.updateCameraConfig({
